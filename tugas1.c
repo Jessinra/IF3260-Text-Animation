@@ -4,11 +4,14 @@
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/mman.h>
+#include <string.h>
+#include <time.h>
 
-#define xstart 1
-#define xend 1365
-#define ystart 1
-#define yend 765
+#define xstart 0
+#define xend 1100
+#define ystart 0
+#define yend 700
+#define framejump 4
 
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
@@ -48,61 +51,61 @@ const char zero[][32] = {
 	{1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
 	{1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
 	{1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
+	{1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
+	{1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
+	{1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 };
 
-void assignColor(char *fbp, long int location, int a, int r, int g, int b){
-	*(fbp + location) = b;
-    *(fbp + location + 1) = g;
-    *(fbp + location + 2) = r;
-    *(fbp + location + 3) = a;
+int fbfd = 0;
+int screensize = 0;
+char *fbp = 0;
+int xmultiplier;
+int ymultiplier;
+int xadder;
+int yadder;
+
+
+void assignColor(int location, int c){
+	// *(fbp + location) = b;
+    // *(fbp + location + 1) = g;
+    // *(fbp + location + 2) = r;
+    *((unsigned int *) (fbp + location)) = c;
 }
 
-void assignColorLocation(char *fbp, long int location1, long int location2){
-    *(fbp + location1) = *(fbp + location2);
-    *(fbp + location1 + 1) = *(fbp + location2 + 1);
-    *(fbp + location1 + 2) = *(fbp + location2 + 2);
-    *(fbp + location1 + 3) = *(fbp + location2 + 3);
+void assignColorLocation(int location1, int location2){
+    *((unsigned int *) (fbp + location1)) = *((unsigned int *) (fbp + location2));
 }
 
-void clearWindow(char *fbp, long int screensize){
-	for (int  y = ystart; y <= yend; y++ )
-        for (int x = xstart; x <= xend; x++ ) {
-            long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                       (y+vinfo.yoffset) * finfo.line_length;
+void clearWindow(){
+	// for (int  y = ystart; y < yend; y++ )
+    //     for (int x = xstart; x < xend; x++ ) {
+    //         long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                    (y+vinfo.yoffset) * finfo.line_length;
 
-            assignColor(fbp, location, 0, 0, 0, 0);
-        }
+    //         assignColor(fbp, location, 0, 0, 0, 0);
+    //     }
+
+    // Super Optimize
+    memset(fbp, 0, (xend*xmultiplier + xadder +
+                    yend*ymultiplier + yadder));
 }
 
-void moveWindowUp(char *fbp, long int screensize){
-	for (int  y = ystart; y <= yend-1; y++ ){
-        for (int x = xstart; x <= xend; x++ ) {
-            long int location1 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                       (y+vinfo.yoffset) * finfo.line_length;
-            long int location2 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                       (y+1+vinfo.yoffset) * finfo.line_length;
-
-            assignColorLocation(fbp, location1, location2);
-        }
+void moveWindowUp(){
+    for (int  y = ystart; y < yend-framejump; y += framejump){
+        int location1 = xadder + y*ymultiplier + yadder;
+        int location2 = location1 + framejump * ymultiplier;
+        memcpy(fbp+location1, fbp+location2, framejump*(1+vinfo.yoffset) * finfo.line_length);
 	}
-    for (int x = xstart; x <= xend; x++ ) {
-        long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                   (yend +vinfo.yoffset) * finfo.line_length;
-
-        assignColor(fbp, location, 0, 0, 0, 0);
-    }
+    memset(fbp + (yend-framejump)*ymultiplier + yadder, 0, framejump*(ymultiplier + yadder));
 }
 
 int main()
 {
-    int fbfd = 0;
-    long int screensize = 0;
-    char *fbp = 0;
     // int x = 0, y = 0;
-    long int location = 0;
+    int location = 0;
 
     // Open the file for reading and writing
     fbfd = open("/dev/fb0", O_RDWR);
@@ -138,25 +141,41 @@ int main()
     }
     printf("The framebuffer device was mapped to memory successfully.\n");
 
+    xmultiplier = (vinfo.bits_per_pixel/8);
+    xadder = (vinfo.xoffset) * xmultiplier;
+    ymultiplier = finfo.line_length;
+    yadder = vinfo.yoffset * finfo.line_length;
     // x = 100; y = 100;       // Where we are going to put the pixel
 
     // const char *s[10];
     // s[0] = "Kelompok Hehe";
     // s[1] = "13516010 - Tony - Pontianak";
     // s[2] = "13516099 - HOHOHO - HHHHH";
+    printf("mi : %d\n", (xstart+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                   (ystart +vinfo.yoffset) * finfo.line_length);
+    printf("ma : %d\n", (xend+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                   (yend +vinfo.yoffset) * finfo.line_length);
+    // pastikan nilai ma < limit ( screensize )
+    printf("limit : %d\n", screensize);
+    // double now = clock();
+	clearWindow();
+    // printf("c : %lf\n", (clock() - now) / CLOCKS_PER_SEC);
 
-	clearWindow(fbp, screensize);
+	for(int i=0;;i=(i+framejump)%44){
+        // now = clock();
+		moveWindowUp();
+        // printf("m : %lf\n", (clock() - now) / CLOCKS_PER_SEC);
+		if(i < 40){
+            for(int j=0;j<framejump;++j){
+                for(int k=0;k<32;++k){
+                    int location = (k+xstart+10)*xmultiplier + xadder+
+                            (yend-framejump + j)*ymultiplier + yadder;
 
-	for(int i=0;;i=(i+1)%40){
-		moveWindowUp(fbp, screensize);
-		if(i < 37){
-			for(int j=0;j<32;++j){
-	            long int location = (j+xstart+10+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-	                       (yend+vinfo.yoffset) * finfo.line_length;
-
-	            assignColor(fbp, location, (zero[i][j])*0, (zero[i][j])*255, (zero[i][j])*255, (zero[i][j])*255);
-			}
+                    assignColor(location, (zero[i+j][k])*((255<<16)+(255<<8)+255));
+                }
+            }
 		}
+        // printf("a : %lf\n", (clock() - now) / CLOCKS_PER_SEC);
 	}
 
     // for(int i=0;i<n;++i){
