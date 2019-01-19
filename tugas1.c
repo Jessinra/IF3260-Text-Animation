@@ -7,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 
+
 #define xstart 0
 #define xend 1100
 #define ystart 0
@@ -66,6 +67,40 @@ int xmultiplier;
 int ymultiplier;
 int xadder;
 int yadder;
+int height;
+int width;
+char *matrix[1000000];
+
+void readMatrix(const char * file_name) {
+    FILE *fp;
+    char c[1000000];
+    int line = 0;
+    int index = 0;
+    printf("sebelum test");
+    fp = fopen(file_name, "r"); //read mode
+    if (fp == NULL) {
+        perror("Error while opening the file.\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("test");
+    while (fscanf(fp, "%[^\n]", c) != EOF) {
+        line += 1;
+        if (line == 1) {
+            printf("mulai baca height");
+            printf("hehehe %s", c);
+            height = atoi(c);
+            printf("sudah baca height");
+        }
+        else if (line == 2) {
+            width = atoi(c);
+        }
+        else {
+            index += 1;
+            matrix[index] = c;
+        }
+    }
+    fclose(fp);
+}
 
 
 void assignColor(int location, int c){
@@ -106,6 +141,9 @@ int main()
 {
     // int x = 0, y = 0;
     int location = 0;
+
+    // read file
+    readMatrix("result_D.txt");
 
     // Open the file for reading and writing
     fbfd = open("/dev/fb0", O_RDWR);
@@ -171,7 +209,7 @@ int main()
                     int location = (k+xstart+10)*xmultiplier + xadder+
                             (yend-framejump + j)*ymultiplier + yadder;
 
-                    assignColor(location, (zero[i+j][k])*((255<<16)+(255<<8)+255));
+                    assignColor(location, (matrix[i+j][k])*((255<<16)+(255<<8)+255));
                 }
             }
 		}
