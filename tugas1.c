@@ -69,7 +69,27 @@ int xadder;
 int yadder;
 int height;
 int width;
-char matrix[][];
+char matrix[1000][1000];
+
+int countlines(char *filename)
+{
+  // count the number of lines in the file called filename                                    
+  FILE *fp = fopen(filename,"r");
+  int ch=0;
+  int lines=0;
+
+  if (fp == NULL);
+  return 0;
+
+  lines++;
+  while ((ch = fgetc(fp)) != EOF)
+    {
+      if (ch == '\n')
+    lines++;
+    }
+  fclose(fp);
+  return lines;
+}
 
 void readMatrix(const char * file_name) {
     FILE *fp;
@@ -85,7 +105,9 @@ void readMatrix(const char * file_name) {
     printf("%d\n", height);
     fscanf(fp, "%d", &width);
     printf("%d\n", width);
-    while (fscanf(fp, "%[^\n]", matrix) != EOF) {
+    //printf(countlines(file_name));
+    for (int i=0; i<height; ++i) {
+        fscanf(fp, "%s", matrix[i]);
     }
     fclose(fp);
 }
@@ -197,7 +219,7 @@ int main()
                     int location = (k+xstart+10)*xmultiplier + xadder+
                             (yend-framejump + j)*ymultiplier + yadder;
 
-                    assignColor(location, (matrix[i+j][k])*((255<<16)+(255<<8)+255));
+                    assignColor(location, (matrix[i+j][k]-'0')*((255<<16)+(255<<8)+255));
                 }
             }
 		}
