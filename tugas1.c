@@ -66,48 +66,47 @@ void assignColorLocation(char *fbp, long int location1, long int location2){
 }
 
 void clearWindow(char *fbp, long int screensize){
-	for (int  y = ystart; y <= yend; y++ )
-        for (int x = xstart; x <= xend; x++ ) {
-            long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                       (y+vinfo.yoffset) * finfo.line_length;
+	// for (int  y = ystart; y < yend; y++ )
+    //     for (int x = xstart; x < xend; x++ ) {
+    //         long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                    (y+vinfo.yoffset) * finfo.line_length;
 
-            assignColor(fbp, location, 0, 0, 0, 0);
-        }
+    //         assignColor(fbp, location, 0, 0, 0, 0);
+    //     }
+
+    // Super Optimize
+    memset(fbp, 0, ((xend+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                    (yend+vinfo.yoffset) * finfo.line_length));
 }
 
 void moveWindowUp(char *fbp, long int screensize){
     /* F*cking slow code */
-	for (int  y = ystart; y <= yend-1; y++ ){
-        for (int x = xstart; x <= xend; x++ ) {
-            long int location1 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                       (y+vinfo.yoffset) * finfo.line_length;
-            long int location2 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                       (y+1+vinfo.yoffset) * finfo.line_length;
+	// for (int  y = ystart; y <= yend-1; y++ ){
+    //     for (int x = xstart; x <= xend; x++ ) {
+    //         long int location1 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                    (y+vinfo.yoffset) * finfo.line_length;
+    //         long int location2 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                    (y+1+vinfo.yoffset) * finfo.line_length;
 
-            assignColorLocation(fbp, location1, location2);
-        }
-	}
-    for (int x = xstart; x <= xend; x++ ) {
-        long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-                   (yend +vinfo.yoffset) * finfo.line_length;
-
-        assignColor(fbp, location, 0, 0, 0, 0);
-    }
-
-    /* Greater Optimization */
-    // memcpy(fbp, fbp+(1+vinfo.yoffset) * finfo.line_length, (yend-1+1+vinfo.yoffset) * finfo.line_length);
-    // for (int  y = ystart; y <= yend-1; y++ ){
-    //     long int location1 = (vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-    //                 (y+vinfo.yoffset) * finfo.line_length;
-    //     long int location2 = (vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-    //                 (y+1+vinfo.yoffset) * finfo.line_length;
-    //     memcpy(fbp+location1, fbp+location2, (1+vinfo.yoffset) * finfo.line_length);
+    //         assignColorLocation(fbp, location1, location2);
+    //     }
 	// }
     // for (int x = xstart; x <= xend; x++ ) {
     //     long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
     //                (yend +vinfo.yoffset) * finfo.line_length;
+
     //     assignColor(fbp, location, 0, 0, 0, 0);
     // }
+
+    /* Greater Optimization */
+    for (int  y = ystart; y <= yend-1; y++ ){
+        long int location1 = (vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                    (y+vinfo.yoffset) * finfo.line_length;
+        long int location2 = (vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                    (y+1+vinfo.yoffset) * finfo.line_length;
+        memcpy(fbp+location1, fbp+location2, (1+vinfo.yoffset) * finfo.line_length);
+	}
+    memset(fbp + (yend +vinfo.yoffset) * finfo.line_length, 0, (1+vinfo.yoffset) * finfo.line_length);
 }
 
 int main()
