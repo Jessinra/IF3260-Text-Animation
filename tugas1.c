@@ -4,11 +4,12 @@
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/mman.h>
+#include <pthread.h>
 
-#define xstart 1
-#define xend 1365
-#define ystart 1
-#define yend 765
+#define xstart 0
+#define xend 800
+#define ystart 0
+#define yend 500
 
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
@@ -61,10 +62,7 @@ void assignColor(char *fbp, long int location, int a, int r, int g, int b){
 }
 
 void assignColorLocation(char *fbp, long int location1, long int location2){
-    *(fbp + location1) = *(fbp + location2);
-    *(fbp + location1 + 1) = *(fbp + location2 + 1);
-    *(fbp + location1 + 2) = *(fbp + location2 + 2);
-    *(fbp + location1 + 3) = *(fbp + location2 + 3);
+    *((unsigned int *) (fbp + location1)) = *((unsigned int *) (fbp + location2));
 }
 
 void clearWindow(char *fbp, long int screensize){
@@ -78,6 +76,7 @@ void clearWindow(char *fbp, long int screensize){
 }
 
 void moveWindowUp(char *fbp, long int screensize){
+    /* F*cking slow code */
 	for (int  y = ystart; y <= yend-1; y++ ){
         for (int x = xstart; x <= xend; x++ ) {
             long int location1 = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
@@ -94,6 +93,21 @@ void moveWindowUp(char *fbp, long int screensize){
 
         assignColor(fbp, location, 0, 0, 0, 0);
     }
+
+    /* Greater Optimization */
+    // memcpy(fbp, fbp+(1+vinfo.yoffset) * finfo.line_length, (yend-1+1+vinfo.yoffset) * finfo.line_length);
+    // for (int  y = ystart; y <= yend-1; y++ ){
+    //     long int location1 = (vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                 (y+vinfo.yoffset) * finfo.line_length;
+    //     long int location2 = (vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                 (y+1+vinfo.yoffset) * finfo.line_length;
+    //     memcpy(fbp+location1, fbp+location2, (1+vinfo.yoffset) * finfo.line_length);
+	// }
+    // for (int x = xstart; x <= xend; x++ ) {
+    //     long int location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+    //                (yend +vinfo.yoffset) * finfo.line_length;
+    //     assignColor(fbp, location, 0, 0, 0, 0);
+    // }
 }
 
 int main()
@@ -144,7 +158,12 @@ int main()
     // s[0] = "Kelompok Hehe";
     // s[1] = "13516010 - Tony - Pontianak";
     // s[2] = "13516099 - HOHOHO - HHHHH";
-
+    printf("mi : %ld\n", 1L*(xstart+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                   1L*(ystart +vinfo.yoffset) * finfo.line_length);
+    printf("ma : %ld\n", 1L*(xend+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
+                   1L*(yend +vinfo.yoffset) * finfo.line_length);
+    // pastikan nilai ma < limit ( screensize )
+    printf("limit : %ld\n", screensize);
 	clearWindow(fbp, screensize);
 
 	for(int i=0;;i=(i+1)%40){
