@@ -209,18 +209,18 @@ int main()
 	clearWindow();
     // printf("c : %lf\n", (clock() - now) / CLOCKS_PER_SEC);
 
-	for(int i=0;;i=(i+framejump)%44){
+	for(int i=0;;i=(i+framejump)%(height + 4)){
         // now = clock();
 		moveWindowUp();
         // printf("m : %lf\n", (clock() - now) / CLOCKS_PER_SEC);
-		if(i < 40){
+		if(i < height){
             for(int j=0;j<framejump;++j){
-                for(int k=0;k<32;++k){
+                for(int k=0;k<width;++k){
                     int location = (k+xstart+10)*xmultiplier + xadder+
                             (yend-framejump + j)*ymultiplier + yadder;
 
                     assignColor(location, (matrix[i+j][k]-'0')*((255<<16)+(255<<8)+255));
-                }
+                }   
             }
 		}
         // printf("a : %lf\n", (clock() - now) / CLOCKS_PER_SEC);
