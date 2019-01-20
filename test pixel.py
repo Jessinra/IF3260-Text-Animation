@@ -109,12 +109,29 @@ if __name__ == "__main__":
     Create merged name pattern
     """
 
-    text = ["Devi", "Habibi", "Harry", "Jessin", "Muharyman", "Nella", "Tony"]
-    for name in text:
-        pixel_matrix = char_to_pixels(name, font_path='calibri/Calibri.ttf', font_size=400)
-        display_dimension(pixel_matrix)
-        write_to_c_file(pixel_matrix, char=name, filename="pattern/const_pattern_{}.h".format(name))
+    # text = ["Devi", "Habibi", "Harry", "Jessin", "Muharyman", "Nella", "Tony"]
 
-        # write_dimension(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
-        # # write_non_zero(pixel_matrix, filename="pattern_{}.txt".format(name))
-        # write_content_only(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
+    text = [
+        "13516010  Tony                Pontianak",
+        "13516025  Nella Zabrina       Magelang",
+        "13516079  Harry Setiawan      Makassar",
+        "13516085  Muh. Habibi Haidir  Makassar",
+        "13516112  Jessin Donnyson     Bandung",
+        "13516124  Kevin Muharyman A   Medan",
+        "13516142  Maharani Devira     Bandung",
+    ]
+
+    filename_ext = ["Tony", "Nella", "Harry", "Habibi", "Jessin", "Muharyman", "Devi"]
+
+    for i in range(0, len(text)):
+
+        name = text[i]
+        filename = "pattern/fullname_pattern_size102_{}.txt".format(filename_ext[i])
+
+        pixel_matrix = char_to_pixels(name, font_path='calibri/Calibri.ttf', font_size=102)
+        display_dimension(pixel_matrix)
+        # display_non_zero(pixel_matrix)
+        # write_to_c_file(pixel_matrix, char=name, filename="pattern/const_pattern_{}.h".format(filename_ext))
+
+        write_dimension(pixel_matrix, filename=filename)
+        write_content_only(pixel_matrix, filename=filename)
