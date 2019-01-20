@@ -153,7 +153,7 @@ int main()
     int location = 0;
 
     // read file
-    readMatrix("result_D.txt");
+    readMatrix("result.txt");
 
     // Open the file for reading and writing
     fbfd = open("/dev/fb0", O_RDWR);

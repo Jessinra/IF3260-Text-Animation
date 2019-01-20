@@ -41,6 +41,9 @@ def write_dimension(matrix, filename="result.txt"):
     with open(filename, 'a', encoding="utf-8") as file:
         file.write("{}\n{}\n".format(height, width))
 
+def write_full_dimension(height, width, filename="result.txt"):
+    with open(filename, 'a', encoding="utf-8") as file:
+        file.write("{}\n{}\n".format(height, width))
 
 def write_content_only(matrix, filename="result.txt"):
     with open(filename, 'a', encoding="utf-8") as file:
@@ -48,6 +51,14 @@ def write_content_only(matrix, filename="result.txt"):
             temp_row = "{}\n".format("".join([str(x) for x in row]))
             file.write(temp_row)
 
+def write_full_content(matrix, max_width, filename="result.txt"):
+    height, width = matrix.shape
+    with open(filename, 'a', encoding="utf-8") as file:
+        for row in matrix:
+            temp_row = "{}".format("".join([str(x) for x in row]))
+            temp_row = temp_row.join("0" for i in range(0, max_width-width))
+            temp_row += "\n"
+            file.write(temp_row)
 
 def write_matrix(matrix, filename="result.txt"):
     with open(filename, 'a', encoding="utf-8") as file:
@@ -109,12 +120,42 @@ if __name__ == "__main__":
     Create merged name pattern
     """
 
+    # data = {
+    #     "Kelompok": "Nama Kelompok: PIXEL STUDIO",
+    #     "Enter1": "-----",
+    #     "Anggota": "Anggota: ",
+    #     "Habibi": "1. Muh. Habibi Haidir, 13516085, Makassar",
+    #     "Tony": "2. Tony, 13516010, Pontianak",
+    #     "Muharyman": "3. Kevin Muharyman A , 13516124 , Medan",
+    #     "Devi": "4. Maharani Devira, 13516142, Bandung",
+    #     "Jessin": "5. Jessin Donnyson, 13516112, Jakarta",
+    #     "Harry": "6. Harry Setiawan Hamjaya, 13516079, Makassar",
+    #     "Enter2": "-----",
+    #     "Enter3": "-----"
+
+    # }
+
     text = ["Devi", "Habibi", "Harry", "Jessin", "Muharyman", "Nella", "Tony"]
+    
+    # total_height = 0
+    # max_width = 0
+    # pixel_matrixes = []
+    # for key, value in data.items():
+    #     pixel_matrix = char_to_pixels(value, font_path='calibri/Calibri.ttf', font_size=40)
+    #     height, width = pixel_matrix.shape
+    #     total_height += height
+    #     max_width = max(width, max_width)
+    #     pixel_matrixes.append(pixel_matrix)
+
+    # write_full_dimension(total_height, max_width)
+    # for pixel_matrix in pixel_matrixes:
+    #     write_content_only(pixel_matrix)
+
     for name in text:
         pixel_matrix = char_to_pixels(name, font_path='calibri/Calibri.ttf', font_size=400)
         display_dimension(pixel_matrix)
         write_to_c_file(pixel_matrix, char=name, filename="pattern/const_pattern_{}.h".format(name))
 
-        # write_dimension(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
-        # # write_non_zero(pixel_matrix, filename="pattern_{}.txt".format(name))
-        # write_content_only(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
+        write_dimension(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
+        # write_non_zero(pixel_matrix, filename="pattern_{}.txt".format(name))
+        write_content_only(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
