@@ -92,7 +92,6 @@ def write_to_c_file(matrix, char, filename="result.h"):
         file.write("};\n")
         file.write("#endif")
 
-
 if __name__ == "__main__":
 
     # write_date()
@@ -120,42 +119,28 @@ if __name__ == "__main__":
     Create merged name pattern
     """
 
-    # data = {
-    #     "Kelompok": "Nama Kelompok: PIXEL STUDIO",
-    #     "Enter1": "-----",
-    #     "Anggota": "Anggota: ",
-    #     "Habibi": "1. Muh. Habibi Haidir, 13516085, Makassar",
-    #     "Tony": "2. Tony, 13516010, Pontianak",
-    #     "Muharyman": "3. Kevin Muharyman A , 13516124 , Medan",
-    #     "Devi": "4. Maharani Devira, 13516142, Bandung",
-    #     "Jessin": "5. Jessin Donnyson, 13516112, Jakarta",
-    #     "Harry": "6. Harry Setiawan Hamjaya, 13516079, Makassar",
-    #     "Enter2": "-----",
-    #     "Enter3": "-----"
+    # text = ["Devi", "Habibi", "Harry", "Jessin", "Muharyman", "Nella", "Tony"]
 
-    # }
+    text = [
+        "PIXEL STUDIO",
+        "13516010  Tony                Pontianak",
+        "13516025  Nella Zabrina       Magelang",
+        "13516079  Harry Setiawan      Makassar",
+        "13516085  Muh. Habibi Haidir  Makassar",
+        "13516112  Jessin Donnyson     Bandung",
+        "13516124  Kevin Muharyman A   Medan",
+        "13516142  Maharani Devira     Bandung",
+    ]
 
-    text = ["Devi", "Habibi", "Harry", "Jessin", "Muharyman", "Nella", "Tony"]
-    
-    # total_height = 0
-    # max_width = 0
-    # pixel_matrixes = []
-    # for key, value in data.items():
-    #     pixel_matrix = char_to_pixels(value, font_path='calibri/Calibri.ttf', font_size=40)
-    #     height, width = pixel_matrix.shape
-    #     total_height += height
-    #     max_width = max(width, max_width)
-    #     pixel_matrixes.append(pixel_matrix)
+    filename_ext = ["Kelompok", "Tony", "Nella", "Harry", "Habibi", "Jessin", "Muharyman", "Devi"]
+    for i in range(0, 1):
+        name = text[i]
+        filename = "pattern/fullname_pattern_size102_{}.txt".format(filename_ext[i])
 
-    # write_full_dimension(total_height, max_width)
-    # for pixel_matrix in pixel_matrixes:
-    #     write_content_only(pixel_matrix)
-
-    for name in text:
-        pixel_matrix = char_to_pixels(name, font_path='calibri/Calibri.ttf', font_size=400)
+        pixel_matrix = char_to_pixels(name, font_path='calibri/Calibri.ttf', font_size=102)
         display_dimension(pixel_matrix)
-        write_to_c_file(pixel_matrix, char=name, filename="pattern/const_pattern_{}.h".format(name))
+        # display_non_zero(pixel_matrix)
+        # write_to_c_file(pixel_matrix, char=name, filename="pattern/const_pattern_{}.h".format(filename_ext))
 
-        write_dimension(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
-        # write_non_zero(pixel_matrix, filename="pattern_{}.txt".format(name))
-        write_content_only(pixel_matrix, filename="pattern/name_pattern_{}.txt".format(name))
+        write_dimension(pixel_matrix, filename=filename)
+        write_content_only(pixel_matrix, filename=filename)
