@@ -81,7 +81,6 @@ def write_to_c_file(matrix, char, filename="result.h"):
         file.write("};\n")
         file.write("#endif")
 
-
 if __name__ == "__main__":
 
     # write_date()
@@ -112,6 +111,7 @@ if __name__ == "__main__":
     # text = ["Devi", "Habibi", "Harry", "Jessin", "Muharyman", "Nella", "Tony"]
 
     text = [
+        "PIXEL STUDIO",
         "13516010  Tony                Pontianak",
         "13516025  Nella Zabrina       Magelang",
         "13516079  Harry Setiawan      Makassar",
@@ -121,10 +121,8 @@ if __name__ == "__main__":
         "13516142  Maharani Devira     Bandung",
     ]
 
-    filename_ext = ["Tony", "Nella", "Harry", "Habibi", "Jessin", "Muharyman", "Devi"]
-
-    for i in range(0, len(text)):
-
+    filename_ext = ["Kelompok", "Tony", "Nella", "Harry", "Habibi", "Jessin", "Muharyman", "Devi"]
+    for i in range(0, 1):
         name = text[i]
         filename = "pattern/fullname_pattern_size102_{}.txt".format(filename_ext[i])
 
